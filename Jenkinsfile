@@ -1,41 +1,49 @@
+
 pipeline {
     agent any
     
     tools {
-        jdk 'JDK21'  // Must match the name from Task 3
+        jdk 'JDK21'  // Must match the JDK name configured in Jenkins Tools
+        maven 'Maven'  // Use Maven from Jenkins
     }
     
     stages {
         stage('Hello') {
             steps {
                 echo 'Pipeline started!'
+                echo "Build number: ${env.BUILD_NUMBER}"
                 echo "Building on: ${env.NODE_NAME}"
             }
         }
         
         stage('Checkout') {
             steps {
-                echo 'Code checked out from Git' 
-                // "Pipeline script from SCM", so no need to add an echo
+                // The checkout happens automatically when using "Pipeline script from SCM"
+                echo 'Code checked out from Git'
             }
         }
         
         stage('Build') {
             steps {
-                sh 'chmod +x mvnw' 
-                sh './mvnw clean compile'  
+                dir('starter_code') {
+                    sh 'mvn clean compile'
+                }
             }
         }
         
         stage('Test') {
             steps {
-                sh './mvnw test'  
+                dir('starter_code') {
+                    sh 'mvn test'
+                }
             }
         }
         
         stage('Package') {
             steps {
-                sh './mvnw package -DskipTests' 
+                dir('starter_code') {
+                    sh 'mvn package -DskipTests'
+                }
             }
         }
     }
@@ -43,9 +51,13 @@ pipeline {
     post {
         success {
             echo '✅ Pipeline completed successfully!'
+            echo "Artifact: target/*.jar"
         }
         failure {
-            echo '❌ Pipeline failed!'
+            echo '❌ Pipeline failed! Check the logs above for errors.'
+        }
+        always {
+            echo 'Pipeline finished.'
         }
     }
 }
