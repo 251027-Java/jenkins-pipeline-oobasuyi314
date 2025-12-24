@@ -15,7 +15,7 @@ pipeline {
         
         stage('Checkout') {
             steps {
-                // The checkout happens automatically when using 
+                echo 'Code checked out from Git' 
                 // "Pipeline script from SCM", so no need to add an echo
             }
         }
